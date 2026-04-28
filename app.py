@@ -1,87 +1,104 @@
 import streamlit as st
 import pandas as pd
 from datetime import datetime
-import os  # أضفنا هذه المكتبة للتحقق من وجود الملفات
+import os
 
 # 1. إعدادات الصفحة والهوية البصرية
-st.set_page_config(page_title="مخيم التميز 2026", page_icon="⛺", layout="wide")
+st.set_page_config(page_title="منصة الفروض الرقمية - ثانوية أقا", page_icon="📝", layout="wide")
 
 st.markdown("""
     <style>
     .main { background-color: #f8f9fa; }
-    .stButton>button { background-color: #2e7d32; color: white; width: 100%; border-radius: 8px; }
-    h1 { color: #1b5e20; text-align: center; }
+    .stButton>button { background-color: #1a5276; color: white; width: 100%; border-radius: 8px; font-weight: bold; }
+    h1, h2 { color: #1a5276; text-align: center; }
+    .question-box { background-color: #ffffff; padding: 20px; border-radius: 10px; border-right: 5px solid #1a5276; box-shadow: 2px 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
+    .header-box { background-color: #eaf2f8; padding: 15px; border-radius: 10px; text-align: center; margin-bottom: 25px; border: 1px solid #d4e6f1; }
     </style>
     """, unsafe_allow_html=True)
 
-# 2. وظيفة حماية الموقع
-def check_password():
-    if "password_correct" not in st.session_state:
-        st.session_state.password_correct = False
-    if not st.session_state.password_correct:
-        st.title("🔒 الدخول خاص بجمعية التخييم")
-        pwd = st.text_input("أدخل كلمة المرور للمتابعة", type="password")
-        if st.button("دخول"):
-            if pwd == "Aka2026":
-                st.session_state.password_correct = True
-                st.rerun()
-            else:
-                st.error("❌ كلمة المرور خاطئة")
-        return False
-    return True
+# 2. ترويسة الفرض (اسم المؤسسة والأستاذ)
+st.markdown(f"""
+    <div class="header-box">
+        <h1>ثانوية أقا الإعدادية</h1>
+        <h3>مادة علوم الحياة والأرض</h3>
+        <p><b>الأستاذ: لحسن</b> | الفرض المحروس رقم 1 - الدورة الأولى</p>
+    </div>
+    """, unsafe_allow_html=True)
 
-if check_password():
-    st.title("🌲 جمعية التخييم والتربية: رحلة العمر")
-    st.image("https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?auto=format&fit=crop&w=1200&q=80")
-    st.markdown("---")
+# 3. استمارة بيانات التلميذ (إلزامية)
+st.subheader("👤 معلومات التلميذ(ة)")
+with st.container():
+    col1, col2, col3 = st.columns([2, 1, 1])
+    with col1:
+        student_name = st.text_input("الاسم الكامل")
+    with col2:
+        student_class = st.text_input("القسم (مثلاً: 3/1)")
+    with col3:
+        student_order = st.text_input("رقم الترتيب")
 
-    tab1, tab2, tab3, tab4 = st.tabs(["📋 البرنامج", "🧠 اختبر نفسك", "✍️ التسجيل", "📊 إدارة الجمعية"])
+st.markdown("---")
 
-    with tab1:
-        st.header("برنامج التميز")
-        col1, col2 = st.columns(2)
-        with col1: st.info("☀️ **الفترة الصباحية:** رياضات جبلية، ورشات بيئية.")
-        with col2: st.success("🌙 **الفترة المسائية:** سهرات تربوية ورصد النجوم.")
+# 4. محتوى الاختبار
+st.header("🔬 الجزء الأول: استهلاك المادة العضوية وتدفق الطاقة")
 
-    with tab2:
-        st.header("🧐 أي نوع من المغامرين أنت؟")
-        choice = st.radio("ما هو أكثر شيء تحبه في الغابة؟", ["استكشاف", "مساعدة الأصدقاء", "الطبخ"])
-        if st.button("اكتشف شخصيتك"):
-            st.success("أنت مغامر حقيقي!")
+# التمرين الثاني
+st.subheader("التمرين الثاني (5 نقط)")
+with st.container():
+    st.markdown('<div class="question-box">', unsafe_allow_html=True)
+    st.write("**السؤال 1:** بعد تحليلك للنتائج، اقترح فرضية حول نوع التفاعلات المسؤولة عن إنتاج الطاقة عند كل من السلالتين G و P.")
+    ans1 = st.text_area("أكتب تحليلك وفرضيتك هنا...", key="q1")
+    st.markdown('</div>', unsafe_allow_html=True)
 
-    with tab3:
-        st.header("📝 استمارة التسجيل")
-        with st.form("main_form"):
-            c1, c2 = st.columns(2)
-            with c1:
-                name = st.text_input("اسم المغامر الصغير")
-                age = st.slider("السن", 7, 17, 12)
-            with c2:
-                phone = st.text_input("رقم هاتف ولي الأمر")
-                city = st.selectbox("المدينة", ["أقا", "طاطا", "أكادير", "أخرى"])
-            submit = st.form_submit_button("إرسال الطلب")
-            
-            if submit:
-                new_data = {"الاسم": name, "السن": age, "الهاتف": phone, "المدينة": city, "التاريخ": datetime.now().strftime("%Y-%m-%d")}
-                df = pd.DataFrame([new_data])
-                
-                # تصحيح الخطأ: التحقق من وجود الملف باستخدام مكتبة os
-                file_path = "participants.csv"
-                file_exists = os.path.isfile(file_path)
-                
-                df.to_csv(file_path, mode='a', index=False, header=not file_exists, encoding='utf-8-sig')
-                st.balloons()
-                st.success(f"تم تسجيل {name} بنجاح!")
+with st.container():
+    st.markdown('<div class="question-box">', unsafe_allow_html=True)
+    st.write("**السؤال 2:** حدد معللاً إجابتك الظواهر الاستقلابية المسؤولة عن تحرير الطاقة الكامنة في المادة العضوية.")
+    ans2 = st.text_area("أكتب تحديدك وتعليلك هنا...", key="q2")
+    st.markdown('</div>', unsafe_allow_html=True)
 
-    with tab4:
-        st.header("📂 لوحة الإدارة")
-        if os.path.isfile("participants.csv"):
-            data = pd.read_csv("participants.csv")
+# التمرين الثالث
+st.header("💪 الجزء الثاني: النشاط العضلي")
+with st.container():
+    st.markdown('<div class="question-box">', unsafe_allow_html=True)
+    st.write("**السؤال 3:** حلل النتائج وأعط تفسيراً لتطورات الحمض اللبني ومركب الفوسفوكرياتين (PC) قبل وأثناء النشاط العضلي.")
+    ans3 = st.text_area("أكتب التحليل والتفسير هنا...", key="q3")
+    st.markdown('</div>', unsafe_allow_html=True)
+
+# 5. زر الإرسال وحفظ البيانات
+if st.button("🚀 إرسال ورقة الإجابة"):
+    if student_name and student_class and student_order:
+        # تجهيز البيانات
+        result = {
+            "التوقيت": datetime.now().strftime("%Y-%m-%d %H:%M"),
+            "الاسم الكامل": student_name,
+            "القسم": student_class,
+            "رقم الترتيب": student_order,
+            "إجابة س1": ans1,
+            "إجابة س2": ans2,
+            "إجابة س3": ans3
+        }
+        
+        # حفظ في ملف
+        file_path = "student_results.csv"
+        file_exists = os.path.isfile(file_path)
+        df = pd.DataFrame([result])
+        df.to_csv(file_path, mode='a', index=False, header=not file_exists, encoding='utf-8-sig')
+        
+        st.balloons()
+        st.success(f"تم استلام إجاباتك بنجاح يا {student_name}. حظاً موفقاً!")
+    else:
+        st.error("⚠️ خطأ: يرجى ملء الاسم، القسم، ورقم الترتيب قبل إرسال الفرض.")
+
+# 6. قسم الأستاذ (لوحة التحكم)
+st.markdown("---")
+with st.expander("🔐 لوحة تحكم الأستاذ لحسن"):
+    pwd = st.text_input("كلمة المرور للوصول للنتائج", type="password")
+    if pwd == "Aka2026":
+        if os.path.isfile("student_results.csv"):
+            data = pd.read_csv("student_results.csv")
+            st.write("### لائحة إجابات التلاميذ:")
             st.dataframe(data)
+            
             csv = data.to_csv(index=False).encode('utf-8-sig')
-            st.download_button("📥 تحميل اللائحة", data=csv, file_name='list_2026.csv', mime='text/csv')
+            st.download_button("📥 تحميل النتائج (Excel)", data=csv, file_name='نتائج_تلاميذ_أقا.csv', mime='text/csv')
         else:
-            st.warning("لا يوجد مسجلون حالياً.")
-
-    st.markdown("---")
-    st.markdown("<p style='text-align: center;'>📍 ثانوية أقا الإعدادية | 2026</p>", unsafe_allow_html=True)
+            st.info("لا توجد إجابات مسجلة حالياً.")
