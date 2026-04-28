@@ -3,130 +3,105 @@ import pandas as pd
 from datetime import datetime
 import os
 
-# 1. إعدادات الجمالية والألوان
-st.set_page_config(page_title="منصة التميز الرقمي | ثانوية أقا", page_icon="🎓", layout="centered")
+# 1. إعدادات الجمالية
+st.set_page_config(page_title="منصة QCM | ثانوية أقا", page_icon="🧪", layout="centered")
 
-# تصميم CSS مخصص لجعل الواجهة "تسر الناظرين"
 st.markdown("""
     <style>
-    /* خلفية الصفحة */
-    .stApp {
-        background: linear-gradient(to bottom, #f0f4f8, #d9e2ec);
-    }
-    /* حاوية معلومات التلميذ */
-    .student-info-card {
-        background-color: white;
-        padding: 30px;
-        border-radius: 15px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-        border-top: 8px solid #2c3e50;
-        margin-bottom: 20px;
-    }
-    /* تصميم الأزرار */
-    .stButton>button {
-        background: linear-gradient(45deg, #2c3e50, #34495e);
-        color: white;
-        font-size: 20px;
-        padding: 10px 25px;
-        border-radius: 50px;
-        transition: 0.3s;
-    }
-    .stButton>button:hover {
-        transform: scale(1.05);
-        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-    }
-    h1 { color: #2c3e50; font-family: 'Cairo', sans-serif; }
+    .stApp { background: linear-gradient(to bottom, #eef2f3, #8e9eab); }
+    .question-card { background-color: white; padding: 20px; border-radius: 12px; border-right: 6px solid #1a5276; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    .stRadio > label { font-weight: bold; color: #1a5276; }
+    h1 { color: #1a5276; text-align: center; border-bottom: 2px solid #1a5276; padding-bottom: 10px; }
     </style>
     """, unsafe_allow_html=True)
 
-# 2. إدارة الحالة (Navigation)
-if 'page' not in st.session_state:
-    st.session_state.page = 'login'
+# 2. إدارة التنقل بين الصفحات
+if 'page' not in st.session_state: st.session_state.page = 'login'
 
-# --- الصفحة الأولى: معلومات التلميذ ---
+# --- الصفحة الأولى: المعلومات ---
 if st.session_state.page == 'login':
-    st.image("https://img.icons8.com/fluent/96/000000/education.png", width=100)
     st.title("ثانوية أقا الإعدادية")
-    st.subheader("مرحباً بك في منصة الاختبارات الرقمية")
+    st.subheader("الأستاذ: لحسن - منصة الفروض الرقمية")
     
-    st.markdown('<div class="student-info-card">', unsafe_allow_html=True)
-    st.write("### 👤 تسجيل الدخول للاختبار")
-    st_name = st.text_input("الاسم الكامل للتلميذ(ة)")
-    st_class = st.text_input("القسم")
-    st_order = st.text_input("رقم الترتيب")
-    
-    st.warning("⚠️ تأكد من صحة معلوماتك قبل الدخول، لا يمكنك تغييرها لاحقاً.")
-    
-    if st.button("🚀 ابدأ الامتحان الآن"):
-        if st_name and st_class and st_order:
-            st.session_state.user_name = st_name
-            st.session_state.user_class = st_class
-            st.session_state.user_order = st_order
-            st.session_state.page = 'exam'
-            st.rerun()
-        else:
-            st.error("من فضلك أدخل جميع المعلومات المطلوبة.")
-    st.markdown('</div>', unsafe_allow_html=True)
+    with st.container():
+        st.write("### 📝 أدخل معلوماتك للبدء")
+        name = st.text_input("الاسم الكامل")
+        s_class = st.text_input("القسم")
+        order = st.text_input("رقم الترتيب")
+        
+        if st.button("دخول للاختبار 🚀"):
+            if name and s_class and order:
+                st.session_state.info = {"الاسم": name, "القسم": s_class, "الرقم": order}
+                st.session_state.page = 'exam'
+                st.rerun()
+            else: st.error("أدخل بياناتك كاملة!")
 
-# --- الصفحة الثانية: الامتحان ---
+# --- الصفحة الثانية: الامتحان (12 سؤال QCM) ---
 elif st.session_state.page == 'exam':
-    # ترويسة جانبية بسيطة لمعلومات التلميذ
-    st.sidebar.success(f"الممتحن: {st.session_state.user_name}")
-    st.sidebar.info(f"القسم: {st.session_state.user_class} | رقم: {st.session_state.user_order}")
+    st.title("🧪 اختبار QCM: استهلاك المادة العضوية والعضلة")
+    st.info(f"الممتحن: {st.session_state.info['الاسم']} | بالتوفيق!")
+
+    score = 0
     
-    st.title("📝 الفرض المحروس رقم 1")
-    st.write(f"**المادة:** علوم الحياة والأرض | **تحت إشراف الأستاذ:** لحسن")
-    
-    st.markdown("---")
-    
-    # التمرين الثاني
-    with st.expander("🔬 التمرين الثاني: تحويل الطاقة عند الخميرة", expanded=True):
-        st.write("**السؤال 1:** اقترح فرضية حول نوع التفاعلات لإنتاج الطاقة عند السلالتين G و P.")
-        ans1 = st.text_area("إجابتك هنا...", key="ex_q1")
+    # قائمة الأسئلة (12 سؤال)
+    with st.form("exam_form"):
+        # --- استهلاك المادة العضوية (6 أسئلة) ---
+        st.header("I. استهلاك المادة العضوية وتدفق الطاقة")
         
-        st.write("**السؤال 2:** حدد معللاً إجابتك الظواهر الاستقلابية المسؤولة.")
-        ans2 = st.text_area("إجابتك هنا...", key="ex_q2")
+        q1 = st.radio("1. أين تتم مرحلة انحلال الغليكوز؟", ["الميتوكوندري", "الجبلة الشفافة", "المركب الإنزيمي"])
+        q2 = st.radio("2. ما هو الناتج النهائي لانحلال الغليكوز؟", ["جزيئتان من حمض البيروفيك", "جزيئة واحدة ATP", "الإيثانول"])
+        q3 = st.radio("3. كم عدد جزيئات ATP الناتجة عن هدم جزيئة غليكوز واحدة عبر التنفس؟", ["2 ATP", "38 ATP", "4 ATP"])
+        q4 = st.radio("4. التخمر اللبني ينتج عنه فضلات عضوية هي:", ["CO2 والماء", "حمض لبني", "كحول إيثيلي"])
+        q5 = st.radio("5. أين تحدث دورة كريبس؟", ["الغشاء الخارجي للميتوكوندري", "الماتريس", "الحيز بيغشائي"])
+        q6 = st.radio("6. دور الأكسجين في التنفس الخلوي هو:", ["إنتاج CO2", "متقبل نهائي للإلكترونات والبروتونات", "تفكيك الغليكوز"])
 
-    # التمرين الثالث
-    with st.expander("💪 التمرين الثالث: النشاط العضلي", expanded=True):
-        st.write("**السؤال 3:** حلل النتائج وفسر تطورات الحمض اللبني و PC.")
-        ans3 = st.text_area("إجابتك هنا...", key="ex_q3")
-
-    if st.button("✅ إنهاء الامتحان وإرسال الإجابات"):
-        # حفظ البيانات
-        result = {
-            "التوقيت": datetime.now().strftime("%H:%M:%S"),
-            "الاسم": st.session_state.user_name,
-            "القسم": st.session_state.user_class,
-            "الرقم": st.session_state.user_order,
-            "س1": ans1, "س2": ans2, "س3": ans3
-        }
-        df = pd.DataFrame([result])
-        df.to_csv("exam_results.csv", mode='a', index=False, header=not os.path.exists("exam_results.csv"), encoding='utf-8-sig')
+        # --- العضلة الهيكلية (6 أسئلة) ---
+        st.header("II. العضلة والنشاط العضلي")
         
-        st.balloons()
-        st.session_state.page = 'finish'
-        st.rerun()
+        q7 = st.radio("7. الوحدة البنيوية والوظيفية لليف العضلي هي:", ["الساركوبلازم", "الساركومير", "الميوزين"])
+        q8 = st.radio("8. أي أيونات ضرورية لتحرير مواقع تثبيت الميوزين على الأكتين؟", ["Na+", "Ca2+", "K+"])
+        q9 = st.radio("9. أثناء التقلص العضلي، ماذا يحدث للشريط الداكن (A)؟", ["يتقلص طوله", "يبقى طوله ثابتاً", "يختفي تماماً"])
+        q10 = st.radio("10. المسلك الأسرع لتجديد ATP في العضلة هو:", ["التنفس", "الفوسفوكرياتين (PC)", "التخمر"])
+        q11 = st.radio("11. ماذا تسمى الظاهرة الحرارية المرافقة للتقلص العضلي وتحدث في غياب الأكسجين؟", ["الحرارة المتأخرة", "الحرارة الأولية", "التنفس الخلوي"])
+        q12 = st.radio("12. يتكون الخييط الدقيق من البروتينات التالية:", ["الأكتين، التروبونين، التروبوميوزين", "الميوزين فقط", "الأكتين والميوزين"])
 
-# --- الصفحة الثالثة: النهاية ---
-elif st.session_state.page == 'finish':
+        submit = st.form_submit_button("إرسال الإجابات النهائية ✅")
+        
+        if submit:
+            # تصحيح الإجابات وحساب النقطة (مثال بسيط)
+            correct_answers = ["الجبلة الشفافة", "جزيئتان من حمض البيروفيك", "38 ATP", "حمض لبني", "الماتريس", "متقبل نهائي للإلكترونات والبروتونات", 
+                               "الساركومير", "Ca2+", "يبقى طوله ثابتاً", "الفوسفوكرياتين (PC)", "الحرارة الأولية", "الأكتين، التروبونين، التروبوميوزين"]
+            user_answers = [q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, q11, q12]
+            
+            for u, c in zip(user_answers, correct_answers):
+                if u == c: score += 1
+            
+            final_grade = (score / 12) * 20
+            
+            # حفظ النتائج
+            res = {**st.session_state.info, "النقطة/20": round(final_grade, 2), "التاريخ": datetime.now().strftime("%Y-%m-%d %H:%M")}
+            df = pd.DataFrame([res])
+            df.to_csv("qcm_results.csv", mode='a', index=False, header=not os.path.exists("qcm_results.csv"), encoding='utf-8-sig')
+            
+            st.session_state.grade = round(final_grade, 2)
+            st.session_state.page = 'result'
+            st.rerun()
+
+# --- الصفحة الثالثة: النتيجة ---
+elif st.session_state.page == 'result':
     st.balloons()
-    st.title("🎉 تم الإرسال بنجاح!")
-    st.success(f"شكراً لك يا {st.session_state.user_name}، لقد تم حفظ إجاباتك وإرسالها للأستاذ لحسن.")
-    if st.button("العودة للرئيسية"):
+    st.title("🎉 أحسنت!")
+    st.success(f"شكراً {st.session_state.info['الاسم']}. تم إرسال إجاباتك بنجاح.")
+    st.metric("نقطتك التقريبية هي:", f"{st.session_state.grade} / 20")
+    if st.button("خروج"): 
         st.session_state.page = 'login'
         st.rerun()
 
-# --- لوحة تحكم الأستاذ (تظهر دائماً في الأسفل بشكل مخفي) ---
+# --- لوحة تحكم الأستاذ لحسن ---
 st.markdown("---")
-with st.expander("🛠️ لوحة تحكم الأستاذ لحسن (للمشرف فقط)"):
-    admin_pwd = st.text_input("أدخل القن السري", type="password")
-    if admin_pwd == "Aka2026":
-        if os.path.exists("exam_results.csv"):
-            data = pd.read_csv("exam_results.csv")
-            st.write("### أعمال التلاميذ المسجلة:")
+with st.expander("🔐 لوحة الأستاذ لحسن (لتحميل النقط)"):
+    if st.text_input("القن السري", type="password") == "Aka2026":
+        if os.path.exists("qcm_results.csv"):
+            data = pd.read_csv("qcm_results.csv")
             st.dataframe(data)
-            csv = data.to_csv(index=False).encode('utf-8-sig')
-            st.download_button("📥 تحميل النتائج في ملف Excel", data=csv, file_name='نتائج_تلاميذ_أقا.csv')
-        else:
-            st.info("لا توجد أعمال مصححة بعد.")
+            st.download_button("📥 تحميل لائحة النقط (Excel)", data=data.to_csv(index=False).encode('utf-8-sig'), file_name="نتائج_ثانوية_أقا.csv")
