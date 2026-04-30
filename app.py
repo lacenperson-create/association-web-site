@@ -106,7 +106,7 @@ elif st.session_state.page == 'finish':
 
 # --- لوحة تحكم الأستاذ لحسن (مؤمنة) ---
 st.markdown("---")
-with st.expander("🔐 فضاء test لحسن (لوحة القيادة)"):
+with st.expander("🔐 فضاء الأستاذ لحسن (لوحة القيادة)"):
     if st.text_input("القن السري", type="password") == "Aka2026":
         if os.path.exists("results.csv"):
             try:
