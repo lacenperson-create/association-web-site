@@ -105,6 +105,9 @@ elif st.session_state.page == 'finish':
     st.markdown('</div>', unsafe_allow_html=True)
 
 # --- لوحة تحكم الأستاذ لحسن (مؤمنة) ---
+# -----chanigui work here -----
+reset = st.button
+#------------chanigui end here
 st.markdown("---")
 with st.expander("🔐 فضاء الأستاذ لحسن (لوحة القيادة)"):
     if st.text_input("القن السري", type="password") == "Aka2026":
