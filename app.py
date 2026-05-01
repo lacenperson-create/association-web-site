@@ -23,7 +23,7 @@ if 'page' not in st.session_state: st.session_state.page = 'home'
 if st.session_state.page == 'home':
     st.markdown('<div class="main-card" style="text-align:center;">', unsafe_allow_html=True)
     st.title("🎓 ثانوية أقا الإعدادية")
-    st.write("### فضاء علوم الحياة والأرض - الأستاذ لحسن")
+    st.write("### فضاء الرياضيات - الأستاذ لحسن")
     st.success("أهلاً بك يا بطل! هذا الاختبار سيساعدنا على فهم مستواك ومعالجة تعثراتك.")
     if st.button("انطلاق 🚀"):
         st.session_state.page = 'login'
@@ -47,34 +47,59 @@ elif st.session_state.page == 'login':
         else: st.error("⚠️ المرجو ملء جميع الخانات")
     st.markdown('</div>', unsafe_allow_html=True)
 
-# --- الصفحة الثالثة: الفرض وجمع الصعوبات ---
+# --- الصفحة الثالثة: فرض الرياضيات (الثالثة إعدادي) ---
 elif st.session_state.page == 'exam':
-    st.write(f"🔬 **الممتحن:** {st.session_state.info['الاسم']} | **القسم:** {st.session_state.info['القسم']}")
+    st.write(f"📐 **التلميذ(ة):** {st.session_state.info['الاسم']} | **القسم:** {st.session_state.info['القسم']}")
     
     with st.form("exam_form"):
-        # أسئلة نموذجية (يمكنك تعديلها لـ 12 سؤالاً)
-        st.markdown("#### ❓ الأسئلة")
-        q1 = st.radio("1. أين يتم انحلال الغليكوز؟", ["الميتوكوندري", "الجبلة الشفافة", "الماتريس"])
-        q2 = st.radio("2. كم عدد ATP الناتج عن التنفس الخلوي؟", ["2 ATP", "38 ATP", "4 ATP"])
+        st.markdown("### 📝 اختبار QCM في الرياضيات")
+        st.info("اختر الجواب الصحيح لكل سؤال (النقطة على 20)")
         
+        # --- الأسئلة الـ 12 ---
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            q1 = st.radio("1. ما هو ناتج $ \sqrt{49} $ ؟", ["5", "7", "9"])
+            q2 = st.radio("2. ما هو تعميل التعبير $ x^2 - 9 $ ؟", ["$(x-3)(x+3)$", "$(x-3)^2$", "$(x+3)^2$"])
+            q3 = st.radio("3. القيمة المقربة للعدد $ \pi $ هي:", ["3.12", "3.14", "3.16"])
+            q4 = st.radio("4. ناتج $ (2\sqrt{3})^2 $ هو:", ["6", "12", "18"])
+            q5 = st.radio("5. ما هو تبسيط $ \sqrt{50} $ ؟", ["$5\sqrt{2}$", "$2\sqrt{5}$", "$10\sqrt{5}$"])
+            q6 = st.radio("6. الكتابة العلمية للعدد $ 0.0005 $ هي:", ["$5 \times 10^{-4}$", "$5 \times 10^4$", "$0.5 \times 10^{-3}$"])
+
+        with col2:
+            q7 = st.radio("7. ناتج $ 5^0 $ هو:", ["0", "1", "5"])
+            q8 = st.radio("8. حل المعادلة $ 2x = 10 $ هو:", ["x = 2", "x = 5", "x = 8"])
+            q9 = st.radio("9. مبرهنة فيثاغورس تطبق في المثلث:", ["متساوي الساقين", "قائم الزاوية", "متساوي الأضلاع"])
+            q10 = st.radio("10. جيب تمام زاوية حادة (cos) يساوي:", ["المقابل / الوتر", "المجاور / الوتر", "المقابل / المجاور"])
+            q11 = st.radio("11. ناتج $ (x+1)^2 $ هو:", ["$x^2+1$", "$x^2+2x+1$", "$x^2+x+1$"])
+            q12 = st.radio("12. إذا كان $ \sqrt{x} = 4 $ فإن $ x $ يساوي:", ["2", "8", "16"])
+
         st.markdown("---")
-        # خانة الصعوبات (معدلة لتجنب الأخطاء البرمجية)
-        st.markdown("#### 🚩 ركن الصعوبات البيداغوجية")
-        st.write("ما هي الدروس أو الفقرات التي تجد فيها صعوبة في المادة؟")
-        feedback = st.text_area("عبر هنا بكل صراحة عن مشاكلك مع المادة...")
+        # خانة الصعوبات البيداغوجية
+        st.markdown("#### 🚩 ركن الصعوبات")
+        feedback = st.text_area("ما هي الدروس التي تجد فيها صعوبة في الرياضيات؟ (مثلاً: الجذور، النشر، التعميل...)")
 
         if st.form_submit_button("إرسال ورقة الإجابة ✅"):
-            # التصحيح
+            # --- نظام التصحيح الآلي ---
             score = 0
-            if q1 == "الجبلة الشفافة": score += 1
-            if q2 == "38 ATP": score += 1
-            final_grade = (score / 2) * 20
+            # الأجوبة الصحيحة
+            answers = {
+                q1: "7", q2: "$(x-3)(x+3)$", q3: "3.14", q4: "12", 
+                q5: "$5\sqrt{2}$", q6: "$5 \times 10^{-4}$", q7: "1", 
+                q8: "5", q9: "قائم الزاوية", q10: "المجاور / الوتر", 
+                q11: "$x^2+2x+1$", q12: "16"
+            }
             
-            # حماية البيانات: إزالة أي رموز قد تفسد ملف CSV
+            for q, correct in answers.items():
+                if q == correct: score += 1
+            
+            # حساب النقطة من 20
+            final_grade = (score / 12) * 20
+            
+            # حماية وتجهيز البيانات
             safe_feedback = feedback.replace(";", " ").replace("\n", " ").strip()
             if not safe_feedback: safe_feedback = "لا توجد"
             
-            # تجهيز السجل
             res = {
                 "الاسم": st.session_state.info['الاسم'],
                 "القسم": st.session_state.info['القسم'],
@@ -84,7 +109,7 @@ elif st.session_state.page == 'exam':
                 "التوقيت": datetime.now().strftime("%Y-%m-%d %H:%M")
             }
             
-            # الحفظ باستخدام فاصلة منقوطة لضمان عدم حدوث ParserError
+            # حفظ النتائج
             df = pd.DataFrame([res])
             df.to_csv("results.csv", mode='a', index=False, header=not os.path.exists("results.csv"), sep=';', encoding='utf-8-sig')
             
