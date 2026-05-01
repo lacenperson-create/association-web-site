@@ -131,88 +131,93 @@ elif st.session_state.page == 'finish':
 
 from fpdf import FPDF # أضف هذا السطر في أعلى الملف مع المكتبات الأخرى
 
-# --- لوحة تحكم الأستاذ لحسن (نسخة مطورة مع PDF) ---
+# --- لوحة تحكم الأستاذ لحسن (النسخة النهائية المعتمدة) ---
 st.markdown("---")
-with st.expander("🔐 فضاء الأستاذ لحسن (التقارير والإحصائيات)"):
+with st.expander("🔐 فضاء الأستاذ لحسن (الإدارة والنتائج)"):
     
+    # إدارة حالة الدخول
     if "admin_logged_in" not in st.session_state:
         st.session_state.admin_logged_in = False
 
     if not st.session_state.admin_logged_in:
         st.write("### 🔑 تسجيل دخول المشرف")
-        admin_pass = st.text_input("أدخل القن السري", type="password")
-        if st.button("دخول 🔓"):
+        admin_pass = st.text_input("أدخل القن السري", type="password", key="admin_key")
+        
+        # زر الدخول الذي طلبته
+        if st.button("دخول إلى اللوحة 🔓"):
             if admin_pass == "Aka2026":
                 st.session_state.admin_logged_in = True
+                st.success("مرحباً بك أستاذ لحسن!")
                 st.rerun()
-            else: st.error("❌ كلمة المرور خاطئة")
+            else:
+                st.error("❌ عذراً، القن السري غير صحيح.")
     
     else:
-        if st.button("تسجيل الخروج 🔒"):
+        # زر تسجيل الخروج للأمان
+        if st.button("تسجيل الخروج 🔒", use_container_width=True):
             st.session_state.admin_logged_in = False
             st.rerun()
             
+        st.divider()
+
         if os.path.exists("results.csv"):
             try:
-                data = pd.read_csv("results.csv", sep=';')
+                # قراءة البيانات مع ضمان دعم العربية
+                data = pd.read_csv("results.csv", sep=';', encoding='utf-8-sig')
                 
-                # --- وظيفة إنشاء ملف PDF ---
-                def create_pdf(df):
-                    pdf = FPDF()
-                    pdf.add_page()
-                    # إضافة خط يدعم العربية أو الاكتفاء بالعناوين اللاتينية لضمان التوافق
-                    pdf.set_font("Arial", 'B', 16)
-                    pdf.cell(200, 10, txt="Class Results Report - Aka School", ln=True, align='C')
-                    pdf.ln(10)
-                    
-                    pdf.set_font("Arial", size=10)
-                    # رؤوس الجدول
-                    pdf.cell(40, 10, "Name", border=1)
-                    pdf.cell(20, 10, "Class", border=1)
-                    pdf.cell(20, 10, "Grade", border=1)
-                    pdf.cell(100, 10, "Difficulties", border=1)
-                    pdf.ln()
-                    
-                    for i in range(len(df)):
-                        pdf.cell(40, 10, str(df.iloc[i]['الاسم'])[:20], border=1)
-                        pdf.cell(20, 10, str(df.iloc[i]['القسم']), border=1)
-                        pdf.cell(20, 10, str(df.iloc[i]['النقطة']), border=1)
-                        pdf.cell(100, 10, str(df.iloc[i]['الصعوبات'])[:50], border=1)
-                        pdf.ln()
-                    return pdf.output(dest='S').encode('latin-1')
-
-                # --- أزرار التحميل ---
-                col_pdf, col_excel, col_reset = st.columns([1, 1, 1])
+                # أزرار الإجراءات السريعة
+                col_down, col_reset = st.columns([3, 1])
                 
-                with col_pdf:
-                    pdf_data = create_pdf(data)
-                    st.download_button("📄 تحميل تقرير PDF", 
-                                     data=pdf_data, 
-                                     file_name="results_report.pdf",
-                                     mime="application/pdf",
-                                     use_container_width=True)
+                with col_down:
+                    # تحميل Excel (CSV بترميز UTF-8-SIG يدعم العربية تماماً في أوفيس)
+                    st.download_button(
+                        label="📥 تحميل نتائج التلاميذ (Excel)",
+                        data=data.to_csv(index=False, sep=';').encode('utf-8-sig'),
+                        file_name=f"نتائج_الرياضيات_أقا_{datetime.now().strftime('%d-%m')}.csv",
+                        mime="text/csv",
+                        use_container_width=True
+                    )
                 
-                with col_excel:
-                    st.download_button("📊 تحميل ملف Excel", 
-                                     data=data.to_csv(index=False, sep=';').encode('utf-8-sig'), 
-                                     file_name="results_excel.csv",
-                                     use_container_width=True)
-
                 with col_reset:
-                    if st.checkbox("تفعيل الحذف"):
-                        if st.button("🗑️ مسح السجلات", type="primary"):
+                    # زر المسح الآمن بتأكيد
+                    if st.checkbox("تفعيل المسح ⚠️"):
+                        if st.button("🗑️ مسح الكل", type="primary"):
                             os.remove("results.csv")
+                            st.success("تم تصفير السجلات.")
                             st.rerun()
 
-                # عرض البيانات والمبيانات
-                t1, t2 = st.tabs(["📊 الإحصائيات", "📋 النتائج الكاملة"])
-                with t1:
-                    fig = px.histogram(data, x="النقطة", title="توزيع النقط", color_discrete_sequence=['#1a5276'])
+                # عرض التحليلات
+                tab1, tab2, tab3 = st.tabs(["📊 المبيانات الإحصائية", "🔍 دفتر التعثرات", "📋 الجدول العام"])
+                
+                with tab1:
+                    st.subheader("توزيع نقط القسم")
+                    fig = px.histogram(data, x="النقطة", nbins=10, 
+                                       labels={'النقطة': 'المعدل', 'count': 'عدد التلاميذ'},
+                                       color_discrete_sequence=['#1a5276'])
                     st.plotly_chart(fig, use_container_width=True)
-                with t2:
+                    
+                    c1, c2, c3 = st.columns(3)
+                    c1.metric("عدد التلاميذ", len(data))
+                    c2.metric("أعلى نقطة", data["النقطة"].max())
+                    c3.metric("متوسط القسم", round(data["النقطة"].mean(), 2))
+
+                with tab2:
+                    st.subheader("سجل تشخيص الصعوبات")
+                    # تصفية التلاميذ الذين سجلوا ملاحظات فقط
+                    struggles = data[data["الصعوبات"] != "لا توجد"][["الاسم", "القسم", "الصعوبات"]]
+                    if not struggles.empty:
+                        st.table(struggles)
+                    else:
+                        st.info("لم يتم تسجيل أي تعثرات بيداغوجية حتى الآن.")
+
+                with tab3:
+                    st.subheader("لائحة النتائج التفصيلية")
                     st.dataframe(data, use_container_width=True)
 
             except Exception as e:
-                st.error(f"حدث خطأ: {e}")
+                st.error(f"خطأ في قراءة البيانات: {e}")
+                if st.button("إصلاح تلقائي"):
+                    os.remove("results.csv")
+                    st.rerun()
         else:
-            st.info("لا توجد بيانات حالياً.")
+            st.info("ℹ️ في انتظار تسجيل أول تلميذ لظهور النتائج.")
