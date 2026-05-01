@@ -104,37 +104,67 @@ elif st.session_state.page == 'finish':
         st.rerun()
     st.markdown('</div>', unsafe_allow_html=True)
 
-# --- لوحة تحكم الأستاذ لحسن (مؤمنة) ---
-# -----chanigui work here -----
-reset = st.button
-#------------chanigui end here
+# --- لوحة تحكم الأستاذ لحسن (نسخة مطورة) ---
 st.markdown("---")
 with st.expander("🔐 فضاء الأستاذ لحسن (لوحة القيادة)"):
-    if st.text_input("القن السري", type="password") == "Aka2026":
+    password = st.text_input("القن السري", type="password", key="teacher_pass")
+    
+    if password == "Aka2026":
         if os.path.exists("results.csv"):
             try:
                 data = pd.read_csv("results.csv", sep=';')
                 
-                t1, t2 = st.tabs(["📊 الإحصائيات", "🔍 رصد التعثرات"])
+                # --- [قسم الأزرار العلوية] ---
+                col_down, col_reset = st.columns([3, 1])
+                
+                with col_down:
+                    st.download_button("📥 تحميل التقرير الشامل (Excel)", 
+                                     data.to_csv(index=False, sep=';').encode('utf-8-sig'), 
+                                     file_name=f"نتائج_أقا_{datetime.now().strftime('%d_%m')}.csv",
+                                     use_container_width=True)
+                
+                with col_reset:
+                    # زر إعادة الضبط مع تأكيد (Check-box) للحماية
+                    if st.checkbox("تفعيل خيار الحذف ⚠️"):
+                        if st.button("🗑️ مسح كافة النتائج الآن", type="primary"):
+                            os.remove("results.csv")
+                            st.success("تم مسح الملف بنجاح! قم بتحديث الصفحة.")
+                            st.rerun()
+
+                # --- [عرض البيانات] ---
+                t1, t2, t3 = st.tabs(["📊 الإحصائيات العامة", "🔍 رصد التعثرات", "📋 الجدول الكامل"])
                 
                 with t1:
-                    st.write("### نتائج القسم")
-                    st.dataframe(data)
-                    fig = px.histogram(data, x="النقطة", title="توزيع النقط", color_discrete_sequence=['#1a5276'])
+                    st.write("### تحليل مستوى القسم")
+                    # مبيان محسن
+                    fig = px.histogram(data, x="النقطة", 
+                                       title="توزيع النقط على التلاميذ",
+                                       labels={'النقطة': 'المعدل', 'count': 'عدد التلاميذ'},
+                                       color_discrete_sequence=['#1a5276'],
+                                       template="plotly_white")
                     st.plotly_chart(fig, use_container_width=True)
-                
+                    
+                    # إحصائيات سريعة
+                    c1, c2 = st.columns(2)
+                    c1.metric("عدد المشاركين", f"{len(data)} تلميذ")
+                    c2.metric("متوسط النقط", f"{data['النقطة'].mean():.2f} / 20")
+
                 with t2:
-                    st.write("### 🔍 المفاهيم غير المفهومة لدى التلاميذ")
-                    # عرض الصعوبات فقط للتلاميذ الذين كتبوا شيئاً
+                    st.write("### 🔍 سجل الصعوبات البيداغوجية")
                     struggles = data[data["الصعوبات"] != "لا توجد"][["الاسم", "القسم", "الصعوبات"]]
                     if not struggles.empty:
                         st.table(struggles)
                     else:
-                        st.write("لا توجد تعثرات مسجلة حالياً.")
-                
-                st.download_button("📥 تحميل التقرير (Excel)", data.to_csv(index=False, sep=';').encode('utf-8-sig'), file_name="نتائج_أقا_2026.csv")
+                        st.info("لا توجد ملاحظات مسجلة من التلاميذ حتى الآن.")
+
+                with t3:
+                    st.write("### أرشيف النتائج")
+                    st.dataframe(data, use_container_width=True)
+
             except Exception as e:
-                st.error("⚠️ الملف القديم يحتوي على أخطاء تنسيق.")
-                st.info("يرجى حذف ملف 'results.csv' من GitHub لكي يبدأ النظام الجديد بالعمل بشكل سليم.")
+                st.error(f"⚠️ يوجد خلل في ملف البيانات: {e}")
+                if st.button("إصلاح تلقائي (حذف الملف المكسور)"):
+                    os.remove("results.csv")
+                    st.rerun()
         else:
-            st.info("في انتظار أول مشاركة من التلاميذ...")
+            st.info("ℹ️ لا توجد بيانات مسجلة حالياً. في انتظار أول تلميذ!")
