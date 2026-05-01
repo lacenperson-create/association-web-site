@@ -104,47 +104,64 @@ elif st.session_state.page == 'finish':
         st.rerun()
     st.markdown('</div>', unsafe_allow_html=True)
 
-# --- لوحة تحكم الأستاذ لحسن (نسخة مطورة) ---
+# --- لوحة تحكم الأستاذ لحسن (نسخة مطورة بزر دخول) ---
 st.markdown("---")
 with st.expander("🔐 فضاء الأستاذ لحسن (لوحة القيادة)"):
-    password = st.text_input("القن السري", type="password", key="teacher_pass")
     
-    if password == "Aka2026":
+    # التحقق مما إذا كان الأستاذ قد سجل دخوله بالفعل في هذه الجلسة
+    if "admin_logged_in" not in st.session_state:
+        st.session_state.admin_logged_in = False
+
+    if not st.session_state.admin_logged_in:
+        # واجهة تسجيل الدخول للأستاذ
+        st.write("### 🔑 تسجيل دخول المشرف")
+        admin_pass = st.text_input("أدخل القن السري للمتابعة", type="password")
+        
+        if st.button("تسجيل الدخول 🔓"):
+            if admin_pass == "Aka2026":
+                st.session_state.admin_logged_in = True
+                st.success("تم التحقق بنجاح!")
+                st.rerun()
+            else:
+                st.error("❌ القن السري غير صحيح، حاول مرة أخرى.")
+    
+    else:
+        # الخروج من لوحة التحكم
+        if st.button("تسجيل الخروج 🔒", key="logout_btn"):
+            st.session_state.admin_logged_in = False
+            st.rerun()
+            
+        st.markdown("---")
+        
+        # عرض البيانات بعد تسجيل الدخول الناجح
         if os.path.exists("results.csv"):
             try:
                 data = pd.read_csv("results.csv", sep=';')
                 
-                # --- [قسم الأزرار العلوية] ---
+                # أزرار الإدارة
                 col_down, col_reset = st.columns([3, 1])
-                
                 with col_down:
-                    st.download_button("📥 تحميل التقرير الشامل (Excel)", 
+                    st.download_button("📥 تحميل ملف النتائج (Excel)", 
                                      data.to_csv(index=False, sep=';').encode('utf-8-sig'), 
                                      file_name=f"نتائج_أقا_{datetime.now().strftime('%d_%m')}.csv",
                                      use_container_width=True)
                 
                 with col_reset:
-                    # زر إعادة الضبط مع تأكيد (Check-box) للحماية
-                    if st.checkbox("تفعيل خيار الحذف ⚠️"):
-                        if st.button("🗑️ مسح كافة النتائج الآن", type="primary"):
+                    if st.checkbox("تفعيل الحذف ⚠️"):
+                        if st.button("🗑️ مسح السجلات", type="primary"):
                             os.remove("results.csv")
-                            st.success("تم مسح الملف بنجاح! قم بتحديث الصفحة.")
+                            st.success("تم تصفير البيانات.")
                             st.rerun()
 
-                # --- [عرض البيانات] ---
-                t1, t2, t3 = st.tabs(["📊 الإحصائيات العامة", "🔍 رصد التعثرات", "📋 الجدول الكامل"])
+                # التبويبات الإحصائية
+                t1, t2, t3 = st.tabs(["📊 الإحصائيات", "🔍 رصد التعثرات", "📋 الجدول الكامل"])
                 
                 with t1:
                     st.write("### تحليل مستوى القسم")
-                    # مبيان محسن
-                    fig = px.histogram(data, x="النقطة", 
-                                       title="توزيع النقط على التلاميذ",
-                                       labels={'النقطة': 'المعدل', 'count': 'عدد التلاميذ'},
-                                       color_discrete_sequence=['#1a5276'],
-                                       template="plotly_white")
+                    fig = px.histogram(data, x="النقطة", title="توزيع النقط",
+                                       color_discrete_sequence=['#1a5276'], template="plotly_white")
                     st.plotly_chart(fig, use_container_width=True)
                     
-                    # إحصائيات سريعة
                     c1, c2 = st.columns(2)
                     c1.metric("عدد المشاركين", f"{len(data)} تلميذ")
                     c2.metric("متوسط النقط", f"{data['النقطة'].mean():.2f} / 20")
@@ -155,16 +172,15 @@ with st.expander("🔐 فضاء الأستاذ لحسن (لوحة القيادة
                     if not struggles.empty:
                         st.table(struggles)
                     else:
-                        st.info("لا توجد ملاحظات مسجلة من التلاميذ حتى الآن.")
+                        st.info("لا توجد ملاحظات حالياً.")
 
                 with t3:
-                    st.write("### أرشيف النتائج")
                     st.dataframe(data, use_container_width=True)
 
             except Exception as e:
-                st.error(f"⚠️ يوجد خلل في ملف البيانات: {e}")
-                if st.button("إصلاح تلقائي (حذف الملف المكسور)"):
+                st.error(f"⚠️ خطأ في الملف: {e}")
+                if st.button("إصلاح الملف (مسحه)"):
                     os.remove("results.csv")
                     st.rerun()
         else:
-            st.info("ℹ️ لا توجد بيانات مسجلة حالياً. في انتظار أول تلميذ!")
+            st.info("ℹ️ لا توجد بيانات مسجلة حالياً.")
