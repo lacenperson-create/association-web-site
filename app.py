@@ -180,3 +180,62 @@ with st.expander("🛠️ لوحة تحكم الأستاذ (خاص)"):
             st.dataframe(data)
             # زر التحميل المنسق (كما في الكود السابق)
             st.download_button("📥 تحميل التقرير الرسمي", data.to_csv(index=False, sep=';').encode('utf-8-sig'), "report.csv")
+            # --- داخل لوحة تحكم الأستاذ بعد التأكد من تسجيل الدخول وقراءة البيانات ---
+if os.path.exists("results.csv"):
+    try:
+        data = pd.read_csv("results.csv", sep=';', encoding='utf-8-sig')
+        
+        # --- 1. فقرة المؤشرات السريعة ---
+        st.markdown("### 📊 لوحة قيادة الأداء")
+        col_m1, col_m2, col_m3, col_m4 = st.columns(4)
+        
+        with col_m1:
+            st.metric("عدد المشاركين", f"{len(data)} تلميذ")
+        with col_m2:
+            st.metric("متوسط النقط", f"{round(data['النقطة'].mean(), 2)} / 20")
+        with col_m3:
+            st.metric("أعلى نقطة", f"{data['النقطة'].max()} / 20")
+        with col_m4:
+            st.metric("أدنى نقطة", f"{data['النقطة'].min()} / 20")
+
+        st.divider()
+
+        # --- 2. فقرة الرسوم البيانية ---
+        tab_charts, tab_struggles, tab_details = st.tabs(["📈 تحليل النقط", "🔍 رصد التعثرات", "📋 لائحة النتائج"])
+
+        with tab_charts:
+            col_chart1, col_chart2 = st.columns(2)
+            
+            with col_chart1:
+                # مبيان توزيع النقط
+                fig_hist = px.histogram(data, x="النقطة", 
+                                       title="توزيع معدلات التلاميذ",
+                                       labels={'النقطة': 'المعدل', 'count': 'عدد التلاميذ'},
+                                       color_discrete_sequence=['#1a5276'],
+                                       template="plotly_white")
+                st.plotly_chart(fig_hist, use_container_width=True)
+            
+            with col_chart2:
+                # مبيان المقارنة حسب الأقسام
+                avg_by_class = data.groupby('القسم')['النقطة'].mean().reset_index()
+                fig_bar = px.bar(avg_by_class, x='القسم', y='النقطة', 
+                                title="متوسط النقط حسب الأقسام",
+                                color='النقطة', 
+                                color_continuous_scale='RdYlGn')
+                st.plotly_chart(fig_bar, use_container_width=True)
+
+        with tab_struggles:
+            st.markdown("#### 🚩 سجل الصعوبات المصرح بها")
+            # استخراج الكلمات المفتاحية الأكثر تكراراً في التعثرات
+            struggles_list = data[data["الصعوبات"] != "لا توجد"][["الاسم", "القسم", "الصعوبات"]]
+            if not struggles_list.empty:
+                st.dataframe(struggles_list, use_container_width=True)
+            else:
+                st.info("لم يتم تسجيل أي صعوبات من طرف التلاميذ حتى الآن.")
+
+        with tab_details:
+            st.markdown("#### 📄 الجدول الكامل للنتائج")
+            st.dataframe(data, use_container_width=True)
+
+    except Exception as e:
+        st.error(f"حدث خطأ أثناء تحليل البيانات: {e}")
