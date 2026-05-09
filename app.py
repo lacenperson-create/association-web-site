@@ -7,6 +7,7 @@ import plotly.express as px
 # 1. الإعدادات الجمالية المتقدمة
 st.set_page_config(page_title="منصة الأستاذ لحسن الرقمية", page_icon="📐", layout="wide")
 
+# تحسين الـ CSS لإعطاء مظهر عصري
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
@@ -17,62 +18,63 @@ st.markdown("""
         direction: rtl; 
     }
     
-    /* خلفية رياضية خفيفة */
     .stApp {
-        background-color: #f0f2f6;
-        background-image: radial-gradient(#1a5276 0.5px, transparent 0.5px);
+        background-color: #f8f9fa;
+        background-image: radial-gradient(#2c3e50 0.5px, transparent 0.5px);
         background-size: 30px 30px;
-        background-opacity: 0.05;
+        opacity: 0.95;
     }
     
     .main-card {
-        background: rgba(255, 255, 255, 0.95);
-        padding: 30px;
-        border-radius: 20px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        background: white;
+        padding: 40px;
+        border-radius: 25px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.05);
         margin-bottom: 25px;
-        border-right: 8px solid #1a5276;
+        border-top: 10px solid #1a5276;
+        transition: transform 0.3s ease;
     }
     
+    .main-card:hover {
+        transform: translateY(-5px);
+    }
+
     .math-header {
         color: #1a5276;
-        border-bottom: 2px solid #eaeaea;
-        padding-bottom: 10px;
-        margin-bottom: 20px;
+        font-weight: 700;
+        border-right: 5px solid #1a5276;
+        padding-right: 15px;
+        margin-bottom: 25px;
     }
-    
+
     .stButton>button {
+        width: 100%;
         background: linear-gradient(135deg, #1a5276 0%, #2980b9 100%);
         color: white;
-        border-radius: 12px;
+        border-radius: 15px;
+        padding: 10px 25px;
         border: none;
-        transition: all 0.3s;
-        font-weight: bold;
-        font-size: 18px;
-    }
-    
-    .stButton>button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(26, 82, 118, 0.3);
+        transition: 0.3s;
     }
     </style>
     """, unsafe_allow_html=True)
 
+# إدارة الحالة (Session State)
 if 'page' not in st.session_state: st.session_state.page = 'home'
+if 'score' not in st.session_state: st.session_state.score = 0
 
 # --- الصفحة الأولى: الواجهة الترحيبية ---
 if st.session_state.page == 'home':
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         st.markdown('<div class="main-card" style="text-align:center;">', unsafe_allow_html=True)
-        # صورة ترحيبية رياضية (يمكنك استبدال الرابط بصورة logo.png إذا رفعتها)
         st.image("https://img.freepik.com/free-vector/math-cosmology-concept-landing-page_23-2148181463.jpg", use_container_width=True)
         st.title("🏛️ ثانوية أقا الإعدادية")
         st.markdown("<h2 style='color:#1a5276;'>🧮 فضاء الرياضيات الرقمي</h2>", unsafe_allow_html=True)
-        st.write("#### تحت إشراف الأستاذ لحسن")
-        st.info("مرحباً بك في المنصة الذكية لتقييم المكتسبات ودعم التعثرات في مادة الرياضيات.")
+        st.write("### تحت إشراف الأستاذ لحسن")
+        st.success("🎯 منصة تفاعلية لدعم مكتسباتكم في مادة الرياضيات")
         
-        if st.button("ابدأ رحلة التحدي الآن 🚀"):
+        if st.button("بدء التحدي الرقمي 🚀"):
             st.session_state.page = 'login'
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
@@ -80,30 +82,30 @@ if st.session_state.page == 'home':
 # --- الصفحة الثانية: التسجيل ---
 elif st.session_state.page == 'login':
     st.markdown('<div class="main-card">', unsafe_allow_html=True)
-    st.markdown("<h3 class='math-header'>📝 معلومات الفارس(ة)</h3>", unsafe_allow_html=True)
+    st.markdown("<h3 class='math-header'>📝 بطاقة تعريف الفارس(ة)</h3>", unsafe_allow_html=True)
     c1, c2, c3 = st.columns(3)
     with c1: name = st.text_input("الاسم الكامل باللغة العربية")
     with c2: s_class = st.selectbox("القسم", ["3/1", "3/2", "3/3", "3/4", "3/5", "3/6"])
-    with c3: order = st.number_input("رقم الترتيب", min_value=1, max_value=45, step=1)
+    with c3: order = st.number_input("رقم الترتيب", 1, 45, 1)
     
-    if st.button("تأكيد الدخول ✍️"):
-        if name:
+    if st.button("تأكيد الهوية والدخول ✍️"):
+        if name and len(name) > 5:
             st.session_state.info = {"الاسم": name, "القسم": s_class, "الرقم": order}
             st.session_state.page = 'exam'
             st.rerun()
-        else: st.error("⚠️ المرجو كتابة اسمك للمتابعة")
+        else: st.warning("⚠️ المرجو كتابة الاسم الكامل (ثلاثي) للمتابعة")
     st.markdown('</div>', unsafe_allow_html=True)
 
 # --- الصفحة الثالثة: الاختبار ---
 elif st.session_state.page == 'exam':
     st.markdown(f"""
-        <div style='background:#1a5276; color:white; padding:10px; border-radius:10px; text-align:center; margin-bottom:20px;'>
-            ✅ أنت الآن في وضع الاختبار | التلميذ: {st.session_state.info['الاسم']} | القسم: {st.session_state.info['القسم']}
+        <div style='background:#1a5276; color:white; padding:15px; border-radius:15px; text-align:center; margin-bottom:20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);'>
+            <b>📍 وضع الاختبار النشط</b> | التلميذ: {st.session_state.info['الاسم']} | القسم: {st.session_state.info['القسم']}
         </div>
     """, unsafe_allow_html=True)
     
     with st.form("exam_form"):
-        st.markdown("<h3 class='math-header'>📐 تحدي الذكاء الرياضي (QCM)</h3>", unsafe_allow_html=True)
+        st.markdown("<h3 class='math-header'>📐 تحدي الذكاء الرياضي</h3>", unsafe_allow_html=True)
         
         col1, col2 = st.columns(2)
         with col1:
@@ -124,12 +126,10 @@ elif st.session_state.page == 'exam':
             q7 = st.radio("7. ناتج القوة $ 5^0 $ هو:", ["0", "1", "5"])
             q12 = st.radio("8. إذا كان $ \sqrt{x} = 4 $ فإن قيمة $ x $ هي:", ["2", "8", "16"])
 
-        st.markdown("---")
-        st.markdown("#### 🚩 ركن التواصل البيداغوجي")
-        feedback = st.text_area("أستاذي، أحتاج للمساعدة في دروس: (اكتب هنا ما يواجهك من صعوبات)")
+        st.divider()
+        feedback = st.text_area("✍️ هل واجهت صعوبة في سؤال معين؟ أخبر الأستاذ هنا:")
 
         if st.form_submit_button("إرسال ورقة الإجابة ✅"):
-            # نظام التصحيح (بناءً على 8 أسئلة كمثال للتبسيط)
             score = 0
             answers = { q1: "7", q2: "$(x-3)(x+3)$", q5: "$5\sqrt{2}$", q7: "1", q9: "قائم الزاوية", q10: "المجاور / الوتر", q11: "$x^2+2x+1$", q12: "16" }
             for q, correct in answers.items():
@@ -144,9 +144,7 @@ elif st.session_state.page == 'exam':
                 "الصعوبات": feedback if feedback else "لا توجد",
                 "التوقيت": datetime.now().strftime("%Y-%m-%d %H:%M")
             }
-            df = pd.DataFrame([res])
-            df.to_csv("results.csv", mode='a', index=False, header=not os.path.exists("results.csv"), sep=';', encoding='utf-8-sig')
-            
+            pd.DataFrame([res]).to_csv("results.csv", mode='a', index=False, header=not os.path.exists("results.csv"), sep=';', encoding='utf-8-sig')
             st.session_state.grade = round(final_grade, 2)
             st.session_state.page = 'finish'
             st.rerun()
@@ -156,86 +154,51 @@ elif st.session_state.page == 'finish':
     st.balloons()
     st.markdown('<div class="main-card" style="text-align:center;">', unsafe_allow_html=True)
     st.image("https://cdn-icons-png.flaticon.com/512/190/190411.png", width=100)
-    st.title("🎉 عمل رائع!")
-    st.success(f"البطل(ة) {st.session_state.info['الاسم']}، لقد أنهيت المهمة بنجاح.")
+    st.title("🎉 مبارك النجاح في التحدي!")
     
-    c1, c2 = st.columns(2)
-    with c1: st.metric("نقطتك المستحقة", f"{st.session_state.grade} / 20")
-    with c2: st.info("سيقوم الأستاذ لحسن بمراجعة إجاباتك قريباً.")
+    score_color = "#27ae60" if st.session_state.grade >= 10 else "#e74c3c"
+    st.markdown(f"<h1 style='color:{score_color};'>{st.session_state.grade} / 20</h1>", unsafe_allow_html=True)
+    
+    st.info(f"البطل(ة) {st.session_state.info['الاسم']}، تم تسجيل إجاباتك بنجاح في قاعدة بيانات الأستاذ لحسن.")
     
     if st.button("الخروج والعودة للرئيسية"):
         st.session_state.page = 'home'
         st.rerun()
     st.markdown('</div>', unsafe_allow_html=True)
 
-# --- لوحة تحكم الأستاذ (بدون تغيير في المنطق، فقط تحسين الواجهة) ---
+# --- لوحة تحكم الأستاذ ---
 st.markdown("<br><br>", unsafe_allow_html=True)
-with st.expander("🛠️ لوحة تحكم الأستاذ (خاص)"):
-    # ... (نفس كود الإدارة السابق مع القن Aka2026)
-    admin_pass = st.text_input("القن السري", type="password")
+with st.expander("🛠️ لوحة تحكم الإدارة (خاصة بالأستاذ)"):
+    admin_pass = st.text_input("أدخل القن السري للمشاهدة", type="password")
     if admin_pass == "Aka2026":
         if os.path.exists("results.csv"):
             data = pd.read_csv("results.csv", sep=';', encoding='utf-8-sig')
-            st.write("### 📈 ملخص أداء المؤسسة")
-            st.dataframe(data)
-            # زر التحميل المنسق (كما في الكود السابق)
-            st.download_button("📥 تحميل التقرير الرسمي", data.to_csv(index=False, sep=';').encode('utf-8-sig'), "report.csv")
-            # --- داخل لوحة تحكم الأستاذ بعد التأكد من تسجيل الدخول وقراءة البيانات ---
-if os.path.exists("results.csv"):
-    try:
-        data = pd.read_csv("results.csv", sep=';', encoding='utf-8-sig')
-        
-        # --- 1. فقرة المؤشرات السريعة ---
-        st.markdown("### 📊 لوحة قيادة الأداء")
-        col_m1, col_m2, col_m3, col_m4 = st.columns(4)
-        
-        with col_m1:
-            st.metric("عدد المشاركين", f"{len(data)} تلميذ")
-        with col_m2:
-            st.metric("متوسط النقط", f"{round(data['النقطة'].mean(), 2)} / 20")
-        with col_m3:
-            st.metric("أعلى نقطة", f"{data['النقطة'].max()} / 20")
-        with col_m4:
-            st.metric("أدنى نقطة", f"{data['النقطة'].min()} / 20")
-
-        st.divider()
-
-        # --- 2. فقرة الرسوم البيانية ---
-        tab_charts, tab_struggles, tab_details = st.tabs(["📈 تحليل النقط", "🔍 رصد التعثرات", "📋 لائحة النتائج"])
-
-        with tab_charts:
-            col_chart1, col_chart2 = st.columns(2)
             
-            with col_chart1:
-                # مبيان توزيع النقط
-                fig_hist = px.histogram(data, x="النقطة", 
-                                       title="توزيع معدلات التلاميذ",
-                                       labels={'النقطة': 'المعدل', 'count': 'عدد التلاميذ'},
-                                       color_discrete_sequence=['#1a5276'],
-                                       template="plotly_white")
-                st.plotly_chart(fig_hist, use_container_width=True)
+            # إحصائيات سريعة
+            c_1, c_2, c_3 = st.columns(3)
+            c_1.metric("إجمالي التلاميذ", len(data))
+            c_2.metric("متوسط النقط", f"{round(data['النقطة'].mean(), 2)}")
+            c_3.metric("نسبة النجاح (+10)", f"{len(data[data['النقطة'] >= 10]) / len(data) * 100:.1f}%")
+
+            t1, t2, t3 = st.tabs(["📊 التحليل البياني", "📋 جدول البيانات", "⚙️ الإدارة"])
             
-            with col_chart2:
-                # مبيان المقارنة حسب الأقسام
-                avg_by_class = data.groupby('القسم')['النقطة'].mean().reset_index()
-                fig_bar = px.bar(avg_by_class, x='القسم', y='النقطة', 
-                                title="متوسط النقط حسب الأقسام",
-                                color='النقطة', 
-                                color_continuous_scale='RdYlGn')
-                st.plotly_chart(fig_bar, use_container_width=True)
-
-        with tab_struggles:
-            st.markdown("#### 🚩 سجل الصعوبات المصرح بها")
-            # استخراج الكلمات المفتاحية الأكثر تكراراً في التعثرات
-            struggles_list = data[data["الصعوبات"] != "لا توجد"][["الاسم", "القسم", "الصعوبات"]]
-            if not struggles_list.empty:
-                st.dataframe(struggles_list, use_container_width=True)
-            else:
-                st.info("لم يتم تسجيل أي صعوبات من طرف التلاميذ حتى الآن.")
-
-        with tab_details:
-            st.markdown("#### 📄 الجدول الكامل للنتائج")
-            st.dataframe(data, use_container_width=True)
-
-    except Exception as e:
-        st.error(f"حدث خطأ أثناء تحليل البيانات: {e}")
+            with t1:
+                col_a, col_b = st.columns(2)
+                with col_a:
+                    fig1 = px.histogram(data, x="النقطة", title="توزيع المستويات", color_discrete_sequence=['#1a5276'])
+                    st.plotly_chart(fig1, use_container_width=True)
+                with col_b:
+                    fig2 = px.box(data, x="القسم", y="النقطة", title="مقارنة الأقسام", color="القسم")
+                    st.plotly_chart(fig2, use_container_width=True)
+            
+            with t2:
+                st.dataframe(data.style.highlight_max(subset=['النقطة'], color='#d4edda'), use_container_width=True)
+                st.download_button("📥 تحميل التقرير (Excel)", data.to_csv(index=False).encode('utf-8-sig'), "نتائج_الرياضيات.csv")
+                
+            with t3:
+                if st.button("⚠️ مسح جميع البيانات"):
+                    os.remove("results.csv")
+                    st.warning("تم حذف قاعدة البيانات.")
+                    st.rerun()
+        else:
+            st.info("لم يتم تسجيل أي بيانات بعد.")
