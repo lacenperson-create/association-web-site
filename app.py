@@ -82,7 +82,7 @@ if st.session_state.page == 'home':
 # --- الصفحة الثانية: التسجيل ---
 elif st.session_state.page == 'login':
     st.markdown('<div class="main-card">', unsafe_allow_html=True)
-    st.markdown("<h3 class='math-header'>📝 بطاقة تعريف الفارس(ة)</h3>", unsafe_allow_html=True)
+    st.markdown("<h3 class='math-header'>📝 بطاقة تعريف التلميذ(ة)</h3>", unsafe_allow_html=True)
     c1, c2, c3 = st.columns(3)
     with c1: name = st.text_input("الاسم الكامل باللغة العربية")
     with c2: s_class = st.selectbox("القسم", ["3/1", "3/2", "3/3", "3/4", "3/5", "3/6"])
