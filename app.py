@@ -127,7 +127,7 @@ elif st.session_state.page == 'exam':
             q12 = st.radio("8. إذا كان $ \sqrt{x} = 4 $ فإن قيمة $ x $ هي:", ["2", "8", "16"])
 
         st.divider()
-        feedback = st.text_area("✍️ هل واجهت صعوبة في سؤال معين؟ أخبر الأستاذ هنا:")
+        feedback = st.text_area("✍️ ماهي الصعوبات التي توجهها في الرياضيات؟ أخبر الأستاذ هنا:")
 
         if st.form_submit_button("إرسال ورقة الإجابة ✅"):
             score = 0
